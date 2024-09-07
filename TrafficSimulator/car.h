@@ -15,9 +15,12 @@ public:
     float brakeTarget = 0;
     float brakeRate = 0;
 
-    float steering = 0;
-    float steeringTarget = 0;
-    float steeringRate = 0;
+    //float steering = 0;
+    //float steeringTarget = 0;
+    //float steeringRate = 0;
+
+    float rotationTarget = 0;
+    float rotationRate = 0;
 
     float acceleration = 0;
     float velocity = 0;
@@ -26,7 +29,7 @@ public:
     float height = 4;
     
     float rotation = 0;
-    bool turning = false;
+    int turnStatus = 0;
 
     Car* next = nullptr;
 
@@ -53,9 +56,11 @@ public:
     void setPosition(float x, float y);
     void addToPosition(float x, float y);
     void moveCar(float dt);
-    //void turnCar(float dt);
     void addRotation(float angle, int wheel);
-    void setSteeringTarget(float target, float rate);
+    void setRotationTarget(float angle, float rate);
+    void rightTurn(float rate);
+    void leftTurn(float rate);
+   // void setSteeringTarget(float target, float rate);
 };
 
 #endif // CAR_H

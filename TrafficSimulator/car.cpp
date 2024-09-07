@@ -6,12 +6,14 @@
 #define resistance 0.1f
 #define max_throttle 10.0f
 #define max_brake 15.0f
-#define max_turn 200.0f
+#define max_turn 100.0f
 //#define max_throttle_rate 0.1f
-#define max_steering_rate 0.8f
+//#define max_steering_rate 0.8f
 //#define max_brake_rate 0.4f
-
 #define PI 3.14159265358979323846
+//TO MAINTAIN VELOCITY AT 20: VEL = 20, THROTTLE = 2.1
+//TO MAINTAIN VELOCITY AT 30: VEL = 30, THROTTLE = 3.1
+//AND SO ON
 
 
 void Car::setPosition(float x, float y) {
@@ -29,7 +31,8 @@ void Car::addToPosition(float x, float y) {
 }
 
 void Car::addRotation(float angle, int wheel) {
-    rotation += angle;
+    //rotation += angle;
+    
     float radians = angle * PI / 180.0f;
     float cosTheta = cos(radians);
     float sinTheta = sin(radians);
@@ -67,45 +70,92 @@ void Car::moveCar(float dt) {
     float x = velocity * dt * cos(radians);
     float y = velocity * dt * sin(radians);
     addToPosition(x, y);
-    std::cout << velocity << "\n";
 
-    if (steering != 0) {
-        if (steering * max_turn * dt > 0) {
+    
+    VBOC->Update(carVertices, sizeof(carVertices));
+
+    if (turnStatus == 1) {
+        if (rotation<rotationTarget) {
+            rotation += rotationRate * dt * max_turn;
+            addRotation(rotationRate * dt * max_turn, 18);
+            if (rotation >= rotationTarget) {
+                rotation = rotationTarget;
+                turnStatus = 2;
+            }
+        }
+        else {
+            addRotation(rotationRate * dt * max_turn, 0);
+            rotation -= rotationRate * dt * max_turn;
+            if (rotation <= rotationTarget) {
+                rotation = rotationTarget;
+                turnStatus = 2;
+            }
+        }
+    }
+#pragma region Steering Option
+    /*
+    * if (steering != 0) {
+        if (steering > 0) {
             addRotation(steering * max_turn * dt, 18);
         }
         else {
             addRotation(steering * max_turn * dt, 0);
         }
     }
-    VBOC->Update(carVertices, sizeof(carVertices));
 
-
-#pragma region if else mess
     if (turning = true) {
         if (steering < steeringTarget) {
             steering += steeringRate * dt * max_steering_rate;
-            if (steering > steeringTarget) {
+            if (steering >= steeringTarget) {
                 steering = steeringTarget;
                 turning = false;
             }
         }
         else {
             steering -= steeringRate * dt * max_steering_rate;
-            if (steering < steeringTarget) {
+            if (steering <= steeringTarget) {
                 steering = steeringTarget;
                 steering = false;
             }
         }
     }
+    */
 #pragma endregion
+
+    
 }
 
+void Car::setRotationTarget(float target, float rate) {
+    rotationTarget = target;
+    rotationRate = rate;
+    if (rotationTarget != rotation) {
+        turnStatus = 1;
+    }
+}
 
+void Car::rightTurn(float rate) {
+    rotationTarget = rotation - 90;
+    rotationRate = rate;
+    turnStatus = 1;
+}
+void Car::leftTurn(float rate) {
+    rotationTarget = rotation + 90;
+    rotationRate = rate;
+    turnStatus = 1;
+}
+
+#pragma region steering function
+/*
 void Car::setSteeringTarget(float target, float rate) {
     steeringTarget = target;
     steeringRate = rate;
+    if (target != steering) {
+        turning = true;
+    }
 }
+*/
+#pragma endregion
 
-//TO MAINTAIN VELOCITY AT 20: VEL = 20, THROTTLE = 2.1
-//TO MAINTAIN VELOCITY AT 30: VEL = 30, THROTTLE = 3.1
-//AND SO ON
+
+
+

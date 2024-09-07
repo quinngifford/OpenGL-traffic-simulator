@@ -171,7 +171,7 @@ int main()
             if (lanes[i].backCar->carVertices[0] > -80) {
                 double chance = dis(gen);
                 if (chance > 0.9) {
-                    Car* newCar = lanes[i].addCarToLane();
+                    //Car* newCar = lanes[i].addCarToLane();
                 }
             }
             if (lanes[i].frontCar->carVertices[0] > 100) {
@@ -194,14 +194,9 @@ int main()
                 curr->EBOC->Bind();
                 glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
                 curr->moveCar(dt);
-
-                if (curr->carVertices[0] > -20) {
-                    curr->setSteeringTarget(0.5, 0.6);
+                if (curr->turnStatus < 1 && curr->carVertices[0] >= -20) {
+                    curr->leftTurn(0.5);
                 }
-                if (curr->rotation >= 70) {
-                    curr->setSteeringTarget(0, 0.5);
-                }
-
                 curr = curr->next;
             } 
         }
@@ -209,7 +204,7 @@ int main()
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-        std::this_thread::sleep_for(std::chrono::milliseconds(32));
+        std::this_thread::sleep_for(std::chrono::milliseconds(8));
     }
 
 #pragma region Cleanup

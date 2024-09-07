@@ -17,6 +17,7 @@ public:
     Car* backCar;
     Car* frontCar;
 
+
     Lane(int id_) : id(id_), backCar(nullptr), frontCar(nullptr) {}
 
     Car* addCarToLane();
