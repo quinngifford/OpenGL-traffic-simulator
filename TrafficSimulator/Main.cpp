@@ -18,7 +18,7 @@
 
 #pragma region Constant Definitions
 const float spawnPoints[8][2] = {
-    {4,-110}, {11, -110}, {-4, 110}, {-11, 110}, {110,-11}, {110,-4}, {-110,-4}, {-110,-11}
+    {4,-110}, {11, -110}, {-110,-4}, {-110,-11}, {-4, 110}, {-11, 110}, {110,-11}, {110,-4},
 };
 
 std::random_device rd;
@@ -132,18 +132,35 @@ int main()
     VAO2.Unbind();
     VBO2.Unbind();
     EBO2.Unbind();
+
+
 #pragma endregion 
     
 
-    Lane lanes[8] = { Lane(NORTH_LEFT_LANE), Lane(NORTH_RIGHT_LANE), Lane(SOUTH_LEFT_LANE), 
-        Lane(SOUTH_RIGHT_LANE), Lane(WEST_LEFT_LANE), Lane(WEST_RIGHT_LANE), Lane(EAST_LEFT_LANE), Lane(EAST_RIGHT_LANE) };
+    Lane lanes[8] = { Lane(NORTH_LEFT_LANE), Lane(NORTH_RIGHT_LANE), Lane(EAST_LEFT_LANE), Lane(EAST_RIGHT_LANE),
+        Lane(SOUTH_LEFT_LANE), Lane(SOUTH_RIGHT_LANE), Lane(WEST_LEFT_LANE), Lane(WEST_RIGHT_LANE),  };
     //lanes[EAST_LEFT_LANE].addCarToLane();
     lanes[EAST_RIGHT_LANE].addCarToLane();
 
 
+    double lastTime = glfwGetTime();
+    int nbFrames = 0;
+
     double time = glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
+        double currentTime = glfwGetTime();
+        nbFrames++;
+        if (currentTime - lastTime >= 1.0) { // If last print was more than 1 sec ago
+            // Print the FPS
+            std::cout << "FPS: " << nbFrames << std::endl;
+
+            // Reset the counter and timer
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
+
+
         // Specify the color of the background
         glClearColor(0.0f, 0.0f, 3.0f, 1.0f);
         // Clean the back buffer and assign the new color to it
@@ -174,7 +191,7 @@ int main()
                     //Car* newCar = lanes[i].addCarToLane();
                 }
             }
-            if (lanes[i].frontCar->carVertices[0] > 100) {
+            if (lanes[i].frontCar->carVertices[lanes[i].screen_edge] > lanes[i].screen_edge_val) {
                 Car* temp = lanes[i].frontCar;
                 lanes[i].frontCar = lanes[i].frontCar->next;
                 delete temp;
@@ -204,7 +221,6 @@ int main()
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-        std::this_thread::sleep_for(std::chrono::milliseconds(8));
     }
 
 #pragma region Cleanup

@@ -20,7 +20,9 @@ public:
 
     Lane(int id_) : id(id_), backCar(nullptr), frontCar(nullptr) {}
 
-    Car* addCarToLane();
+    Car* addBackCar();
+    void checkFrontBounds();
+    void deleteFrontCar();
 
     //Later: create lines which the car will follow, perhaps using mathematical functions
 };
