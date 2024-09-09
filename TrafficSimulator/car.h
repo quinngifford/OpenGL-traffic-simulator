@@ -39,10 +39,10 @@ public:
 
     GLfloat carVertices[24] =
     { // |     COORDS      |    |     COLORS     |      
-         0.0f,  0.0f,  0.0f,    0.5f, 0.0f,  0.0f, // Bottom Left
-         0.0f,  0.0f,  0.0f,    0.5f, 0.3f,  0.0f, // Bottom Right
-         0.0f,  0.0f,  0.0f,    0.5f, 0.6f,  0.0f, // Top Right
-         0.0f,  0.0f,  0.0f,    0.5f, 0.9f,  0.0f, // Top Left
+         0.0f,  0.0f,  0.0f,    0.5f, 0.0f,  0.0f, // Back Right Wheel (Bottom Left Vertice)
+         0.0f,  0.0f,  0.0f,    0.5f, 0.3f,  0.0f, // Front Right Wheel (Bottom Right Vertice)
+         0.0f,  0.0f,  0.0f,    0.5f, 0.6f,  0.0f, // Front Left Wheel (Top Right Vertice)
+         0.0f,  0.0f,  0.0f,    0.5f, 0.9f,  0.0f, // Back Left Wheel (Top Left Vertice)
     };
     GLuint indices[6] =
     {
@@ -50,7 +50,7 @@ public:
         2, 3, 0
     };
 
-    Car(float x, float y); // Constructor declaration
+    Car(float x, float y);
 
 
     void setPosition(float x, float y);
@@ -58,8 +58,8 @@ public:
     void moveCar(float dt);
     void addRotation(float angle, int wheel);
     void setRotationTarget(float angle, float rate);
-    void rightTurn(float rate);
-    void leftTurn(float rate);
+    void turnLeft();
+    void turnRight();
    // void setSteeringTarget(float target, float rate);
 };
 

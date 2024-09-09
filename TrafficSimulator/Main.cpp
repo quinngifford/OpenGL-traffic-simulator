@@ -9,21 +9,18 @@
 #include "EBO.h"
 #include "car.h"
 #include "lane.h"
+#include "utils.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>  // For glm::value_ptr
 #include <thread>
 #include <vector>
-#include <random>
 
 #pragma region Constant Definitions
 const float spawnPoints[8][2] = {
-    {4,-110}, {11, -110}, {-4, 110}, {-11, 110}, {110,-11}, {110,-4}, {-110,-4}, {-110,-11}
+    {-110,-7}, {-110,-13}, {7,-110}, {13, -110}, {110,7}, {110,13}, {-7, 110}, {-13, 110}
 };
 
-std::random_device rd;
-std::mt19937 gen(rd());
-std::uniform_real_distribution<> dis(0.0, 1.0);
 
 
 GLfloat verticesRoadVert[] =
@@ -42,13 +39,6 @@ GLfloat verticesRoadHor[] =
     -100.0f,  15.0f, 0.0f,    0.2f, 0.2f,  0.2f, // Top Left
 };
 
-GLfloat verticesCarDefault[] =
-{ // |     COORDS      |    |     COLORS     |      
-     0.0f,  0.0f,  0.0f,    1.0f, 1.0f,  1.0f, // Bottom Left
-     0.0f,  0.0f,  0.0f,    1.0f, 1.0f,  1.0f, // Bottom Right
-     0.0f,  0.0f,  0.0f,    1.0f, 1.0f,  1.0f, // Top Right
-     0.0f,  0.0f,  0.0f,    1.0f, 1.0f,  1.0f, // Top Left
-};
 
 // Indices for rectangle
 GLuint indicesRectangle[] =
@@ -61,6 +51,7 @@ GLuint indicesRectangle[] =
 
 Car createCar(int spawnPoint) {
     Car newCar(spawnPoints[spawnPoint][0], spawnPoints[spawnPoint][1]);
+    newCar.addRotation((spawnPoint / 2) * 90, 0);
     newCar.VAOC.Bind();
     newCar.VAOC.LinkAttrib(*newCar.VBOC, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
     newCar.VAOC.LinkAttrib(*newCar.VBOC, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -81,7 +72,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    GLFWwindow* window = glfwCreateWindow(800, 800, "Traffic Simulation", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1300, 1300, "Traffic Simulation", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -90,7 +81,7 @@ int main()
     }
     glfwMakeContextCurrent(window);
     gladLoadGL();
-    glViewport(0, 0, 800, 800);
+    glViewport(0, 0, 1300, 1300);
 #pragma endregion
 
 
@@ -132,20 +123,49 @@ int main()
     VAO2.Unbind();
     VBO2.Unbind();
     EBO2.Unbind();
+
+
 #pragma endregion 
     
 
-    Lane lanes[8] = { Lane(NORTH_LEFT_LANE), Lane(NORTH_RIGHT_LANE), Lane(SOUTH_LEFT_LANE), 
-        Lane(SOUTH_RIGHT_LANE), Lane(WEST_LEFT_LANE), Lane(WEST_RIGHT_LANE), Lane(EAST_LEFT_LANE), Lane(EAST_RIGHT_LANE) };
-    //lanes[EAST_LEFT_LANE].addCarToLane();
-    lanes[EAST_RIGHT_LANE].addCarToLane();
+    Lane lanes[8] = { 
+        Lane(EAST_LEFT_LANE), Lane(EAST_RIGHT_LANE),
+        Lane(NORTH_LEFT_LANE), Lane(NORTH_RIGHT_LANE),
+        Lane(WEST_LEFT_LANE), Lane(WEST_RIGHT_LANE),
+        Lane(SOUTH_LEFT_LANE), Lane(SOUTH_RIGHT_LANE), 
+    };
+    lanes[EAST_LEFT_LANE].addBackCar();
+    lanes[EAST_RIGHT_LANE].addBackCar();
+    lanes[WEST_LEFT_LANE].addBackCar();
+    lanes[WEST_RIGHT_LANE].addBackCar();
+    lanes[NORTH_LEFT_LANE].addBackCar();
+    lanes[NORTH_RIGHT_LANE].addBackCar();
+    lanes[SOUTH_LEFT_LANE].addBackCar();
+    lanes[SOUTH_RIGHT_LANE].addBackCar();
 
 
+
+    double lastTime = glfwGetTime();
+    int nbFrames = 0;
     double time = glfwGetTime();
+
     while (!glfwWindowShouldClose(window))
     {
+#pragma region FPS counter
+        double currentTime = glfwGetTime();
+        nbFrames++;
+        if (currentTime - lastTime >= 1.0) {
+
+            std::cout << "FPS: " << nbFrames << std::endl;
+
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
+#pragma endregion
+
+#pragma region Clear Background, Activate Program, Redraw Roads
         // Specify the color of the background
-        glClearColor(0.0f, 0.0f, 3.0f, 1.0f);
+        glClearColor(0.0f, 0.3f, 0.0f, 1.0f);
         // Clean the back buffer and assign the new color to it
         glClear(GL_COLOR_BUFFER_BIT);
         
@@ -157,54 +177,41 @@ int main()
         VAO2.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         // Draw primitives, number of indices, datatype of indices, index of indices
-
+#pragma endregion
 
 
         double dt = glfwGetTime() - time;
         time = glfwGetTime();
 
-#pragma region Check Bounds
+#pragma region Iterate over every lane and car
         for (int i = 0; i < 8; i++) {
-            if (lanes[i].backCar == nullptr || lanes[i].frontCar == nullptr) {
-                continue;
-            }
-            if (lanes[i].backCar->carVertices[0] > -80) {
+            if (lanes[i].checkSpawnGap()) {
                 double chance = dis(gen);
-                if (chance > 0.9) {
-                    //Car* newCar = lanes[i].addCarToLane();
+                if (chance > 0.99994) {
+                    lanes[i].addBackCar();
                 }
             }
-            if (lanes[i].frontCar->carVertices[0] > 100) {
-                Car* temp = lanes[i].frontCar;
-                lanes[i].frontCar = lanes[i].frontCar->next;
-                delete temp;
-            }
-            
-        }
-#pragma endregion
-
-#pragma region Draw Each Car
-        for (int i = 0; i < 8; i++) {
             if (lanes[i].frontCar == nullptr) {
                 continue;
             }
+            lanes[i].checkFrontBounds();
+            
             Car* curr = lanes[i].frontCar;
             while (curr != nullptr) {
                 curr->VAOC.Bind();
                 curr->EBOC->Bind();
                 glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-                curr->moveCar(dt);
-                if (curr->turnStatus < 1 && curr->carVertices[0] >= -20) {
-                    curr->leftTurn(0.5);
+                if (curr->turnStatus == 0) {
+                    lanes[i].checkIntersectionEntry(curr);
                 }
+                curr->moveCar(dt);
                 curr = curr->next;
-            } 
+            }
         }
 #pragma endregion
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-        std::this_thread::sleep_for(std::chrono::milliseconds(8));
     }
 
 #pragma region Cleanup
@@ -223,4 +230,4 @@ int main()
     return 0;
 }
 
-//lalaallalalalalalallalaalallalal
+//test branch!!!!

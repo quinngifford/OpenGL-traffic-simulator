@@ -143,6 +143,7 @@
     <ClCompile Include="lane.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="utils.cpp" />
     <ClCompile Include="VAO.cpp" />
     <ClCompile Include="VBO.cpp" />
   </ItemGroup>
@@ -152,6 +153,7 @@
     <ClInclude Include="lane.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
   </ItemGroup>
