@@ -58,8 +58,8 @@ public:
     void moveCar(float dt);
     void addRotation(float angle, int wheel);
     void setRotationTarget(float angle, float rate);
-    void rightTurn(float rate);
-    void leftTurn(float rate);
+    void turnLeft();
+    void turnRight();
    // void setSteeringTarget(float target, float rate);
 };
 

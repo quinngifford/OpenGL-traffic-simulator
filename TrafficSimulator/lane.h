@@ -1,9 +1,6 @@
 #ifndef LANE_H
 #define LANE_H
 
-#include <iostream>
-#include <cmath>
-#include <cstring>
 #include "car.h"
 
 class Lane {
@@ -13,16 +10,21 @@ public:
         Yellow,
         Red
     };
+
     int id;
-    Car* backCar;
-    Car* frontCar;
+
+    Car* backCar = nullptr;
+    Car* frontCar = nullptr;
 
 
-    Lane(int id_) : id(id_), backCar(nullptr), frontCar(nullptr) {}
+    Lane(int id_);
 
     Car* addBackCar();
-    void checkFrontBounds();
+    bool checkFrontBounds();
     void deleteFrontCar();
+    bool checkIntersectionEntry(Car* tarCar);
+    bool checkSpawnGap();
+    //float distanceFromLight(Car * tarCar);
 
     //Later: create lines which the car will follow, perhaps using mathematical functions
 };

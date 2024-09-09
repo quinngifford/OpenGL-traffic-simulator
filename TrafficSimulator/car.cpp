@@ -3,14 +3,15 @@
 #include <cstring>
 #include "car.h"
 
+#define PI 3.14159265358979323846
 #define resistance 0.1f
 #define max_throttle 10.0f
 #define max_brake 15.0f
-#define max_turn 100.0f
+#define max_turn 300.0f
 //#define max_throttle_rate 0.1f
 //#define max_steering_rate 0.8f
 //#define max_brake_rate 0.4f
-#define PI 3.14159265358979323846
+
 //TO MAINTAIN VELOCITY AT 20: VEL = 20, THROTTLE = 2.1
 //TO MAINTAIN VELOCITY AT 30: VEL = 30, THROTTLE = 3.1
 //AND SO ON
@@ -31,14 +32,13 @@ void Car::addToPosition(float x, float y) {
 }
 
 void Car::addRotation(float angle, int wheel) {
-    //rotation += angle;
+    rotation += angle;
     
     float radians = angle * PI / 180.0f;
     float cosTheta = cos(radians);
     float sinTheta = sin(radians);
 
-    // Assume the back wheel is the first vertex
-    float pivotX = carVertices[wheel + 0];
+    float pivotX = carVertices[wheel];
     float pivotY = carVertices[wheel + 1];
 
     for (int i = 0; i < 4; ++i) {
@@ -74,9 +74,10 @@ void Car::moveCar(float dt) {
     
     VBOC->Update(carVertices, sizeof(carVertices));
 
+    
     if (turnStatus == 1) {
-        if (rotation<rotationTarget) {
-            rotation += rotationRate * dt * max_turn;
+        if (rotation < rotationTarget) {
+            //rotation += rotationRate * dt * max_turn;
             addRotation(rotationRate * dt * max_turn, 18);
             if (rotation >= rotationTarget) {
                 rotation = rotationTarget;
@@ -84,8 +85,8 @@ void Car::moveCar(float dt) {
             }
         }
         else {
-            addRotation(rotationRate * dt * max_turn, 0);
-            rotation -= rotationRate * dt * max_turn;
+            //rotation -= rotationRate * dt * max_turn;
+            addRotation(-rotationRate * dt * max_turn, 0);
             if (rotation <= rotationTarget) {
                 rotation = rotationTarget;
                 turnStatus = 2;
@@ -133,14 +134,15 @@ void Car::setRotationTarget(float target, float rate) {
     }
 }
 
-void Car::rightTurn(float rate) {
-    rotationTarget = rotation - 90;
-    rotationRate = rate;
+
+void Car::turnLeft() {
+    rotationTarget = rotation + 90;
+    rotationRate = 0.2f;
     turnStatus = 1;
 }
-void Car::leftTurn(float rate) {
-    rotationTarget = rotation + 90;
-    rotationRate = rate;
+void Car::turnRight() {
+    rotationTarget = rotation - 90;
+    rotationRate = 0.8f;
     turnStatus = 1;
 }
 
