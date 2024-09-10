@@ -18,7 +18,7 @@
 
 #pragma region Constant Definitions
 const float spawnPoints[8][2] = {
-    {-110,-7}, {-110,-13}, {7,-110}, {13, -110}, {110,7}, {110,13}, {-7, 110}, {-13, 110}
+    {-200,-7}, {-200,-13}, {7,-200}, {13, -200}, {200,7}, {200,13}, {-7, 200}, {-13, 200}
 };
 
 
@@ -70,8 +70,13 @@ Car createCar(int spawnPoint) {
 }
 
 
+
+
+
 int main()
 {
+
+    
 
 #pragma region Window Creation
     glfwInit();
@@ -139,11 +144,13 @@ int main()
     
     
     
-
+    //lanes[NORTH_LEFT_LANE] = 0;
+    //lanes[NORTH_RIGHT_LANE] = 0;
 
     double lastTime = glfwGetTime();
     int nbFrames = 0;
     double time = glfwGetTime();
+    lanes[WEST_RIGHT_LANE].addBackCar();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -186,7 +193,7 @@ int main()
             
             if (lanes[i].checkSpawnGap()) {
                 double chance = dis(gen);
-                if (chance > 0.99994) {
+                if (chance > 0.9999) {
                     lanes[i].addBackCar();
                 }
             }
@@ -194,7 +201,6 @@ int main()
                 continue;
             }
             lanes[i].checkFrontBounds();
-            
             
             Car* curr = lanes[i].frontCar;
             while (curr != nullptr) {
@@ -230,4 +236,7 @@ int main()
     return 0;
 }
 
+Lane* getLane(int id) {
+    return &lanes[id];
+}
 //test branch!!!!

@@ -23,6 +23,7 @@ public:
 
     float acceleration = 0;
     float velocity = 0;
+    float targetVelocity = 0;
 
     float width = 5;
     float height = 4;
@@ -64,6 +65,7 @@ public:
     bool makingLight();
     void stopForCar(float dt);
     void stopForLight(float dt);
+    void followCar(float dt);
    // void setSteeringTarget(float target, float rate);
 };
 

@@ -50,8 +50,7 @@ Lane::Lane(int id_) : id(id_) {
 
 Car* Lane::addBackCar() {
     Car* newCar = new Car(createCar(id));
-    newCar->velocity = 28;
-    newCar->throttle = newCar->velocity * 0.01+0.01;
+    newCar->velocity = 30 * sdis(gen);
     if (backCar != nullptr) {
         backCar->next = newCar;
         newCar->inFront = backCar;
@@ -60,7 +59,6 @@ Car* Lane::addBackCar() {
     if (frontCar == nullptr) {
         frontCar = backCar;
     }
-    std::cout << newCar->velocity << "\n";
     return newCar;
 }
 void Lane::deleteFrontCar() {
@@ -74,7 +72,7 @@ void Lane::deleteFrontCar() {
 
 
 bool Lane::checkIntersectionEntry(Car* tarCar) {
-    if (abs(spawnPoints[id][0] - tarCar->carVertices[0]) > 90 || abs(spawnPoints[id][1] - tarCar->carVertices[1]) > 93) {
+    if (abs(spawnPoints[id][0] - tarCar->carVertices[0]) > 183 || abs(spawnPoints[id][1] - tarCar->carVertices[1]) > 183) {
         if (id % 2 == 0) {
             tarCar->turnLeft();
         }

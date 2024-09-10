@@ -9,15 +9,16 @@
 #define PI 3.14159265358979323846
 #define resistance 0.1f
 #define max_throttle 10.0f
-#define max_brake 15.0f
+#define max_brake 40.0f
 #define max_turn 300.0f
-#define stop_gap 5.0f
+#define stop_gap 10.0f
 
 #define braking_distance_car 20.0f
 #define braking_distance_light 40.0f
 #define slowdown_distance_car 20.0f
 #define slowdown_distance_light 60.0f
 
+#define acceleration_rate 0.3f
 #define throttle_rate 0.2f
 #define brake_rate 0.2f
 #define fast_brake_rate 0.4f
@@ -72,15 +73,11 @@ Car::Car(float x, float y, int id) : lane(id) {
 
 void Car::moveCar(float dt) {
 
-    acceleration = throttle * max_throttle - brake * max_brake - (velocity * resistance) - resistance;
+    //acceleration = throttle * max_throttle - brake * max_brake - (velocity * resistance) - resistance;
     if (velocity < 0) {
         velocity = 0;
     }
     velocity += acceleration * dt;
-
-    if (velocity > 0) {
-        std::cout << "Brake: " << brake << "  Throttle: " << throttle << "  Velocity: " << velocity << "\n";
-    }
     
     float radians = rotation * PI / 180.0f;
     float x = velocity * dt * cos(radians);
@@ -92,7 +89,7 @@ void Car::moveCar(float dt) {
     if (turnStatus == 0) {
         if (lanes[lane].light == 0) {
             if (inFront != nullptr) {
-                stopForCar(dt);
+                followCar(dt);
             }
         }
         else if (lanes[lane].light == 2) {
@@ -111,7 +108,7 @@ void Car::moveCar(float dt) {
         else if (lanes[lane].light == 1) {
             if (inFront != nullptr) {
                 if (makingLight()) {
-                    stopForCar(dt);
+                    followCar(dt);
                 }
             }
             else if (!makingLight()) {
@@ -121,10 +118,9 @@ void Car::moveCar(float dt) {
     }
     else {
         if (inFront != nullptr) {
-            stopForCar(dt);
+            followCar(dt);
         }
     }
-    
     
     if (turnStatus == 1) {
         if (rotation < rotationTarget) {
@@ -204,66 +200,44 @@ bool Car::makingLight() {
 }
 
 void Car::stopForCar(float dt) {
-    float dist = calculateDistance(carVertices[0], carVertices[1], inFront->carVertices[0], inFront->carVertices[1]) - stop_gap;
-    
-    if (dist + velocity * 0.5 < 5 && velocity > inFront->velocity) {
-        brake += emergency_brake_rate * dt;
-        throttle = 0;
+    int count = 1;
+    Car* curr = lanes[lane].frontCar;
+    while (curr->next != this) {
+        count++;
+        curr = curr->next;
     }
-    if (dist + velocity * 0.5 < 20 && velocity > inFront->velocity) {
-        brake += fast_brake_rate * dt;
-        throttle = 0;
+    float dist_ = calculateDistance(carVertices[0], carVertices[1], lanes[lane].lightx, lanes[lane].lighty) - stop_gap;
+    float dist = dist_ - (count * 10);
+    if (dist < 0) {
+        std::cout << count << " ";
+        std::cout << dist_ << " ";
+        std::cout << dist << "\n";
+        return;
     }
-    if (dist + velocity * 0.5 < 30 && velocity > inFront->velocity) {
-        brake += brake_rate * dt;
-        throttle = 0;
+    if (dist < 60) {
+        acceleration = doubleIntegralMagic(acceleration, velocity, dist);
     }
-    if (dist + velocity * 0.5 < 40 && velocity > inFront->velocity) {
-        throttle -= throttle_rate * dt;
-    }
-    else {
-        if (throttle < throttleTarget) {
-            throttle += throttle_rate * dt;
-        }
-        if (brake > 0) {
-            brake -= emergency_brake_rate * dt;
-        }
-    }
-    if (brake < 0) {
-        brake = 0;
-    }
-    else if (brake > max_brake) {
-        brake = max_brake;
-    }
-    if (throttle < 0) {
-        throttle = 0;
-    }
-    else if (throttle > throttleTarget) {
-        throttle = throttleTarget;
-    }
-    
-    
 }
 void Car::stopForLight(float dt) {
     float dist = calculateDistance(carVertices[0], carVertices[1], lanes[lane].lightx, lanes[lane].lighty) - stop_gap;
-    if (dist < slowdown_distance_light + velocity) {
-        if (throttle > 0) {
-            throttle -= throttle_rate * dt;
-        }
-        else if (throttle < 0) {
-            throttle = 0;
-        }
-        if (dist < braking_distance_light + velocity) {
-            brake += brake_rate * dt;
-            if (brake > max_brake) {
-                brake = max_brake;
-            }
+    if (dist < 60) {
+        acceleration = doubleIntegralMagic(acceleration, velocity, dist);
+    }
+    
+}
+void Car::followCar(float dt) {
+    if (inFront->velocity > velocity) {
+        if (velocity < targetVelocity) {
+            acceleration += acceleration_rate * dt;
         }
         else {
-            brake -= brake_rate * dt;
-            if (brake < 0) {
-                brake = 0;
-            }
+            acceleration = 0;
+        }
+    }
+    else {
+        float dist = calculateDistance(carVertices[0], carVertices[1], inFront->carVertices[0], inFront->carVertices[1]) - stop_gap;
+        if (dist < 40) {
+            acceleration -= acceleration_rate * dt;
         }
     }
 }

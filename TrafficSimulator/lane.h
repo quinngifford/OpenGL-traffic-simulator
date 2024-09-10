@@ -6,7 +6,7 @@
 class Lane {
 public:
     
-
+    int carsThisCycle = 0;
     int light = 2;
 
     float lightx;
