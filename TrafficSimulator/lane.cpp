@@ -6,12 +6,54 @@
 #include "main.h"
 #include "utils.h"
 
-Lane::Lane(int id_) : id(id_) {}
+
+Lane::Lane(int id_) : id(id_) {
+    switch (id) {
+        case EAST_LEFT_LANE:
+            lightx = -15;
+            lighty = -7;
+            break;
+        case EAST_RIGHT_LANE:
+            lightx = -15;
+            lighty = -13;
+            break;
+        case NORTH_LEFT_LANE:
+            lightx = 7;
+            lighty = -15;
+            break;
+        case NORTH_RIGHT_LANE:
+            lightx = 13;
+            lighty = -15;
+            break;
+        case WEST_LEFT_LANE:
+            lightx = 15;
+            lighty = 7;
+            break;
+        case WEST_RIGHT_LANE:
+            lightx = 15;
+            lighty = 13;
+            break;
+        case SOUTH_LEFT_LANE:
+            lightx = -7;
+            lighty = 15;
+            break;
+        case SOUTH_RIGHT_LANE:
+            lightx = -13;
+            lighty = 15;
+            break;
+        default:
+            lightx = 0;
+            lighty = 0;
+            break;
+    }
+}
 
 Car* Lane::addBackCar() {
     Car* newCar = new Car(createCar(id));
+    newCar->velocity = 30 * sdis(gen);
     if (backCar != nullptr) {
         backCar->next = newCar;
+        newCar->inFront = backCar;
     }
     backCar = newCar;
     if (frontCar == nullptr) {
@@ -19,9 +61,18 @@ Car* Lane::addBackCar() {
     }
     return newCar;
 }
+void Lane::deleteFrontCar() {
+    Car* temp = frontCar;
+    frontCar = frontCar->next;
+    if (frontCar != nullptr) {
+        frontCar->inFront = nullptr;
+    }
+    delete temp;
+}
+
 
 bool Lane::checkIntersectionEntry(Car* tarCar) {
-    if (abs(spawnPoints[id][0] - tarCar->carVertices[0]) > 90 || abs(spawnPoints[id][1] - tarCar->carVertices[1]) > 93) {
+    if (abs(spawnPoints[id][0] - tarCar->carVertices[0]) > 183 || abs(spawnPoints[id][1] - tarCar->carVertices[1]) > 183) {
         if (id % 2 == 0) {
             tarCar->turnLeft();
         }
@@ -30,6 +81,10 @@ bool Lane::checkIntersectionEntry(Car* tarCar) {
             if (chance > 0.5) {
                 tarCar->turnRight();
             }
+            else {
+                tarCar->turnStatus = 2;
+            }
+            
         }
         return true;
     }
@@ -37,6 +92,9 @@ bool Lane::checkIntersectionEntry(Car* tarCar) {
 }
 
 bool Lane::checkSpawnGap() {
+    if (backCar == nullptr) {
+        return true;
+    }
     if (abs(spawnPoints[id][0] - backCar->carVertices[0]) > 30 || abs(spawnPoints[id][1] - backCar->carVertices[1]) > 30) {
         return true;
     }
@@ -44,11 +102,7 @@ bool Lane::checkSpawnGap() {
 }
 
 
-void Lane::deleteFrontCar() {
-    Car* temp = frontCar;
-    frontCar = frontCar->next;
-    delete temp;
-}
+
 
 bool Lane::checkFrontBounds() {
     switch (id)

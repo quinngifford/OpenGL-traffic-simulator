@@ -12,13 +12,13 @@
 #include "utils.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>  // For glm::value_ptr
+#include <glm/gtc/type_ptr.hpp>
 #include <thread>
 #include <vector>
 
 #pragma region Constant Definitions
 const float spawnPoints[8][2] = {
-    {-110,-7}, {-110,-13}, {7,-110}, {13, -110}, {110,7}, {110,13}, {-7, 110}, {-13, 110}
+    {-200,-7}, {-200,-13}, {7,-200}, {13, -200}, {200,7}, {200,13}, {-7, 200}, {-13, 200}
 };
 
 
@@ -46,11 +46,19 @@ GLuint indicesRectangle[] =
     0, 1, 2,
     2, 3, 0
 };
+
+Lane lanes[8] = {
+        Lane(EAST_LEFT_LANE), Lane(EAST_RIGHT_LANE),
+        Lane(NORTH_LEFT_LANE), Lane(NORTH_RIGHT_LANE),
+        Lane(WEST_LEFT_LANE), Lane(WEST_RIGHT_LANE),
+        Lane(SOUTH_LEFT_LANE), Lane(SOUTH_RIGHT_LANE),
+};
+
 #pragma endregion
 
 
 Car createCar(int spawnPoint) {
-    Car newCar(spawnPoints[spawnPoint][0], spawnPoints[spawnPoint][1]);
+    Car newCar(spawnPoints[spawnPoint][0], spawnPoints[spawnPoint][1], spawnPoint);
     newCar.addRotation((spawnPoint / 2) * 90, 0);
     newCar.VAOC.Bind();
     newCar.VAOC.LinkAttrib(*newCar.VBOC, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
@@ -58,14 +66,17 @@ Car createCar(int spawnPoint) {
     newCar.VAOC.Unbind();
     newCar.VBOC->Unbind();
     newCar.EBOC->Unbind();
-    newCar.velocity = 20.0f;
-    newCar.throttle = 0.21f;
     return newCar;
 }
 
 
+
+
+
 int main()
 {
+
+    
 
 #pragma region Window Creation
     glfwInit();
@@ -128,26 +139,18 @@ int main()
 #pragma endregion 
     
 
-    Lane lanes[8] = { 
-        Lane(EAST_LEFT_LANE), Lane(EAST_RIGHT_LANE),
-        Lane(NORTH_LEFT_LANE), Lane(NORTH_RIGHT_LANE),
-        Lane(WEST_LEFT_LANE), Lane(WEST_RIGHT_LANE),
-        Lane(SOUTH_LEFT_LANE), Lane(SOUTH_RIGHT_LANE), 
-    };
-    lanes[EAST_LEFT_LANE].addBackCar();
-    lanes[EAST_RIGHT_LANE].addBackCar();
-    lanes[WEST_LEFT_LANE].addBackCar();
-    lanes[WEST_RIGHT_LANE].addBackCar();
-    lanes[NORTH_LEFT_LANE].addBackCar();
-    lanes[NORTH_RIGHT_LANE].addBackCar();
-    lanes[SOUTH_LEFT_LANE].addBackCar();
-    lanes[SOUTH_RIGHT_LANE].addBackCar();
-
-
+    
+    
+    
+    
+    
+    //lanes[NORTH_LEFT_LANE] = 0;
+    //lanes[NORTH_RIGHT_LANE] = 0;
 
     double lastTime = glfwGetTime();
     int nbFrames = 0;
     double time = glfwGetTime();
+    lanes[WEST_RIGHT_LANE].addBackCar();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -156,7 +159,7 @@ int main()
         nbFrames++;
         if (currentTime - lastTime >= 1.0) {
 
-            std::cout << "FPS: " << nbFrames << std::endl;
+            //std::cout << "FPS: " << nbFrames << std::endl;
 
             nbFrames = 0;
             lastTime += 1.0;
@@ -177,17 +180,20 @@ int main()
         VAO2.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         // Draw primitives, number of indices, datatype of indices, index of indices
+        
 #pragma endregion
 
-
+        
+        
         double dt = glfwGetTime() - time;
         time = glfwGetTime();
 
 #pragma region Iterate over every lane and car
         for (int i = 0; i < 8; i++) {
+            
             if (lanes[i].checkSpawnGap()) {
                 double chance = dis(gen);
-                if (chance > 0.99994) {
+                if (chance > 0.9999) {
                     lanes[i].addBackCar();
                 }
             }
@@ -230,4 +236,7 @@ int main()
     return 0;
 }
 
+Lane* getLane(int id) {
+    return &lanes[id];
+}
 //test branch!!!!

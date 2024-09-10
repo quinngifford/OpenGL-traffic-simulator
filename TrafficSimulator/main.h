@@ -2,7 +2,7 @@
 #define MAIN_H
 
 #include "car.h"
-
+#include "lane.h"
 
 enum LaneID {
     EAST_LEFT_LANE,
@@ -14,6 +14,8 @@ enum LaneID {
     SOUTH_LEFT_LANE,
     SOUTH_RIGHT_LANE
 };
+
+extern Lane lanes[8];
 
 extern const float spawnPoints[8][2];
 extern GLfloat verticesRoadVert[];
