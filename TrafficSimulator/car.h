@@ -8,12 +8,11 @@
 class Car {
 public:
     float throttle = 0;
-    float throttleTarget = 0;
-    float throttleRate = 0;
+    
 
     float brake = 0;
-    float brakeTarget = 0;
-    float brakeRate = 0;
+    bool waitingForLight = false;
+    
 
     //float steering = 0;
     //float steeringTarget = 0;
@@ -31,7 +30,9 @@ public:
     float rotation = 0;
     int turnStatus = 0;
 
+    int lane;
     Car* next = nullptr;
+    Car* inFront = nullptr;
 
     VAO VAOC;
     VBO* VBOC = nullptr;
@@ -50,7 +51,7 @@ public:
         2, 3, 0
     };
 
-    Car(float x, float y);
+    Car(float x, float y, int id);
 
 
     void setPosition(float x, float y);
@@ -60,6 +61,9 @@ public:
     void setRotationTarget(float angle, float rate);
     void turnLeft();
     void turnRight();
+    bool makingLight();
+    void stopForCar(float dt);
+    void stopForLight(float dt);
    // void setSteeringTarget(float target, float rate);
 };
 
