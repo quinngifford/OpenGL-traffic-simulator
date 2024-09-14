@@ -14,6 +14,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <thread>
+#include <chrono>
 #include <vector>
 
 #pragma region Constant Definitions
@@ -37,6 +38,34 @@ GLfloat verticesRoadHor[] =
      100.0f, -15.0f, 0.0f,    0.2f, 0.2f,  0.2f, // Bottom Right
      100.0f,  15.0f, 0.0f,    0.2f, 0.2f,  0.2f, // Top Right
     -100.0f,  15.0f, 0.0f,    0.2f, 0.2f,  0.2f, // Top Left
+};
+GLfloat laneDivEast[] =
+{ // |     COORDS       |    |     COLORS     |      
+    -100.0f, -0.5f, 0.0f,    0.6f, 0.6f,  0.0f, // Bottom Left
+     -20.0f, -0.5f, 0.0f,    0.6f, 0.6f,  0.0f, // Bottom Right
+     -20.0f,  0.5f, 0.0f,    0.6f, 0.6f,  0.0f, // Top Right
+    -100.0f,  0.5f, 0.0f,    0.6f, 0.6f,  0.0f, // Top Left
+};
+GLfloat laneDivNorth[] =
+{ // |     COORDS       |    |     COLORS     |      
+    -0.5f, -100.0f, 0.0f,    0.6f, 0.6f,  0.0f, // Bottom Left
+     0.5f, -100.0f, 0.0f,    0.6f, 0.6f,  0.0f, // Bottom Right
+     0.5f,  -20.0f, 0.0f,    0.6f, 0.6f,  0.0f, // Top Right
+    -0.5f,  -20.0f, 0.0f,    0.6f, 0.6f,  0.0f, // Top Left
+};
+GLfloat laneDivWest[] =
+{ // |     COORDS       |    |     COLORS     |      
+      20.0f, -0.5f, 0.0f,    0.6f, 0.6f,  0.0f, // Bottom Left
+     100.0f, -0.5f, 0.0f,    0.6f, 0.6f,  0.0f, // Bottom Right
+     100.0f,  0.5f, 0.0f,    0.6f, 0.6f,  0.0f, // Top Right
+      20.0f,  0.5f, 0.0f,    0.6f, 0.6f,  0.0f, // Top Left
+};
+GLfloat laneDivSouth[] =
+{ // |     COORDS       |    |     COLORS     |      
+    -0.5f,   20.0f, 0.0f,    0.6f, 0.6f,  0.0f, // Bottom Left
+     0.5f,   20.0f, 0.0f,    0.6f, 0.6f,  0.0f, // Bottom Right
+     0.5f,  100.0f, 0.0f,    0.6f, 0.6f,  0.0f, // Top Right
+    -0.5f,  100.0f, 0.0f,    0.6f, 0.6f,  0.0f, // Top Left
 };
 
 
@@ -69,7 +98,10 @@ Car createCar(int spawnPoint) {
     return newCar;
 }
 
-
+void changeLightToRed(Lane* lane) {
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    lane->light = 2;
+}
 
 
 
@@ -86,7 +118,7 @@ int main()
     GLFWwindow* window = glfwCreateWindow(1300, 1300, "Traffic Simulation", NULL, NULL);
     if (window == NULL)
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        std::cout << "Failed" << std::endl;
         glfwTerminate();
         return -1;
     }
@@ -98,10 +130,8 @@ int main()
 
 
 
-    // Generate Shader object using shaders default.vert and default.frag
     Shader shaderProgram("default.vert", "default.frag");
     glm::mat4 projection = glm::ortho(-100.0f, 100.0f, -100.0f, 100.0f, -1.0f, 1.0f);
-    // Activate the shader program and set the projection matrix (scaling up to 100x)
     shaderProgram.Activate();
     GLuint projLoc = glGetUniformLocation(shaderProgram.ID, "projection");
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
@@ -120,7 +150,7 @@ int main()
     // Link VBO attributes such as coordinates and colors to VAO
     VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
     VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    // Unbind all to prevent accidentally modifying them
+    // Unbind all
     VAO1.Unbind();
     VBO1.Unbind();
     EBO1.Unbind();
@@ -135,6 +165,47 @@ int main()
     VBO2.Unbind();
     EBO2.Unbind();
 
+    VAO VAO3;
+    VAO3.Bind();
+    VBO VBO3(laneDivEast, sizeof(laneDivEast));
+    EBO EBO3(indicesRectangle, sizeof(indicesRectangle));
+    VAO3.LinkAttrib(VBO3, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+    VAO3.LinkAttrib(VBO3, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    VAO3.Unbind();
+    VBO3.Unbind();
+    EBO3.Unbind();
+
+    VAO VAO4;
+    VAO4.Bind();
+    VBO VBO4(laneDivNorth, sizeof(laneDivNorth));
+    EBO EBO4(indicesRectangle, sizeof(indicesRectangle));
+    VAO4.LinkAttrib(VBO4, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+    VAO3.LinkAttrib(VBO4, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    VAO4.Unbind();
+    VBO4.Unbind();
+    EBO4.Unbind();
+
+    VAO VAO5;
+    VAO5.Bind();
+    VBO VBO5(laneDivWest, sizeof(laneDivWest));
+    EBO EBO5(indicesRectangle, sizeof(indicesRectangle));
+    VAO5.LinkAttrib(VBO5, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+    VAO3.LinkAttrib(VBO5, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    VAO5.Unbind();
+    VBO5.Unbind();
+    EBO5.Unbind();
+
+    VAO VAO6;
+    VAO6.Bind();
+    VBO VBO6(laneDivSouth, sizeof(laneDivSouth));
+    EBO EBO6(indicesRectangle, sizeof(indicesRectangle));
+    VAO6.LinkAttrib(VBO6, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+    VAO3.LinkAttrib(VBO6, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    VAO6.Unbind();
+    VBO6.Unbind();
+    EBO6.Unbind();
+
+
 
 #pragma endregion 
     
@@ -142,28 +213,26 @@ int main()
     
     
     
-    
-    
-    //lanes[NORTH_LEFT_LANE] = 0;
-    //lanes[NORTH_RIGHT_LANE] = 0;
+    lanes[NORTH_LEFT_LANE].light = 0;
+    lanes[NORTH_RIGHT_LANE].light = 0;
 
     double lastTime = glfwGetTime();
     int nbFrames = 0;
     double time = glfwGetTime();
-    lanes[WEST_RIGHT_LANE].addBackCar();
-
     while (!glfwWindowShouldClose(window))
     {
 #pragma region FPS counter
         double currentTime = glfwGetTime();
+
         nbFrames++;
         if (currentTime - lastTime >= 1.0) {
 
-            //std::cout << "FPS: " << nbFrames << std::endl;
+            std::cout << "FPS: " << nbFrames << std::endl;
 
             nbFrames = 0;
             lastTime += 1.0;
         }
+        
 #pragma endregion
 
 #pragma region Clear Background, Activate Program, Redraw Roads
@@ -179,6 +248,14 @@ int main()
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         VAO2.Bind();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        VAO3.Bind();
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        VAO4.Bind();
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        VAO5.Bind();
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        VAO6.Bind();
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         // Draw primitives, number of indices, datatype of indices, index of indices
         
 #pragma endregion
@@ -189,8 +266,7 @@ int main()
         time = glfwGetTime();
 
 #pragma region Iterate over every lane and car
-        for (int i = 0; i < 8; i++) {
-            
+        for (int i = 0; i < 8; i++) { 
             if (lanes[i].checkSpawnGap()) {
                 double chance = dis(gen);
                 if (chance > 0.9999) {
@@ -221,22 +297,15 @@ int main()
     }
 
 #pragma region Cleanup
-    // Delete all the objects we've created
+
     VAO1.Delete();
     VBO1.Delete();
     EBO1.Delete();
     shaderProgram.Delete();
-
-    // Delete window before ending the program
     glfwDestroyWindow(window);
-    // Terminate GLFW before ending the program
     glfwTerminate();
 #pragma endregion
     
     return 0;
 }
 
-Lane* getLane(int id) {
-    return &lanes[id];
-}
-//test branch!!!!

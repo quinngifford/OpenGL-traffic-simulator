@@ -50,7 +50,8 @@ Lane::Lane(int id_) : id(id_) {
 
 Car* Lane::addBackCar() {
     Car* newCar = new Car(createCar(id));
-    newCar->velocity = 30 * sdis(gen);
+    newCar->velocity = 28 * sdis(gen);
+    newCar->targetVelocity = newCar->velocity + 6;
     if (backCar != nullptr) {
         backCar->next = newCar;
         newCar->inFront = backCar;

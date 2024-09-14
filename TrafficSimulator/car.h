@@ -7,16 +7,9 @@
 
 class Car {
 public:
+
     float throttle = 0;
-    
-
     float brake = 0;
-    bool waitingForLight = false;
-    
-
-    //float steering = 0;
-    //float steeringTarget = 0;
-    //float steeringRate = 0;
 
     float rotationTarget = 0;
     float rotationRate = 0;
@@ -41,10 +34,10 @@ public:
 
     GLfloat carVertices[24] =
     { // |     COORDS      |    |     COLORS     |      
-         0.0f,  0.0f,  0.0f,    0.5f, 0.0f,  0.0f, // Back Right Wheel (Bottom Left Vertice)
-         0.0f,  0.0f,  0.0f,    0.5f, 0.3f,  0.0f, // Front Right Wheel (Bottom Right Vertice)
-         0.0f,  0.0f,  0.0f,    0.5f, 0.6f,  0.0f, // Front Left Wheel (Top Right Vertice)
-         0.0f,  0.0f,  0.0f,    0.5f, 0.9f,  0.0f, // Back Left Wheel (Top Left Vertice)
+         0.0f,  0.0f,  0.0f,    1.0f, 1.0f,  1.0f, // Back Right Wheel (Bottom Left Vertice)
+         0.0f,  0.0f,  0.0f,    1.0f, 1.0f,  1.0f, // Front Right Wheel (Bottom Right Vertice)
+         0.0f,  0.0f,  0.0f,    1.0f, 1.0f,  1.0f, // Front Left Wheel (Top Right Vertice)
+         0.0f,  0.0f,  0.0f,    1.0f, 1.0f,  1.0f, // Back Left Wheel (Top Left Vertice)
     };
     GLuint indices[6] =
     {
@@ -66,7 +59,6 @@ public:
     void stopForCar(float dt);
     void stopForLight(float dt);
     void followCar(float dt);
-   // void setSteeringTarget(float target, float rate);
 };
 
 #endif // CAR_H
