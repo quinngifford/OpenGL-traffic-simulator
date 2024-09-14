@@ -1,2 +1,2 @@
-Not a finished project
-![download](https://github.com/user-attachments/assets/299c707c-c4ff-4e66-a7fd-c77a3beda0c6)
+not fully complete
+![download (1)](https://github.com/user-attachments/assets/cff1a61c-7cad-4539-a3a6-37990ddbfd64)
