@@ -185,13 +185,13 @@ void Car::stopForCar(float dt) {
         return;
     }
     if (dist < 60) {
-        acceleration = doubleIntegralMagic(acceleration, velocity, dist);
+        acceleration = CalculateDeacceleration(acceleration, velocity, dist);
     }
 }
 void Car::stopForLight(float dt) {
     float dist = calculateDistance(carVertices[0], carVertices[1], lanes[lane].lightx, lanes[lane].lighty) - stop_gap;
     if (dist < 60) {
-        acceleration = doubleIntegralMagic(acceleration, velocity, dist);
+        acceleration = CalculateDeacceleration(acceleration, velocity, dist);
     }
     
 }
