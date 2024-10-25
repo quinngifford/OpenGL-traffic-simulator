@@ -12,15 +12,7 @@ double calculateDistance(float x1, float y1, float x2, float y2) {
 }
 
 //get the acceleration needed to stop at the dist value
-float doubleIntegralMagic(float a, float v, float d) {
-    if (a >= 0) {
-        a = -0.1;
-    }
-    float x = -v / a;
-    
-    while (((0.5 * a * (x * x)) + (v * x)) > d) {
-        a -= 0.01;
-        x = -v / a;
-    }
+float CalculateDeacceleration(float v, float d) {
+    float a = -((v*v)/(2*d));
     return a;
 }
