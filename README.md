@@ -1,4 +1,5 @@
-Ran traffic simulation (with OpenGL graphics for fun) to test light cycle algorithms because I got mad at the lights in Bellevue
+Ran traffic simulation (with OpenGL graphics for fun) to test light cycle algorithms because I got mad at the lights in Bellevue.
+
 This project was made in July 2023, only the repo has been polished since
 
 ![download (1)](https://github.com/user-attachments/assets/cff1a61c-7cad-4539-a3a6-37990ddbfd64)
